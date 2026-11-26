@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Læringsutbyttelager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE everyday work tool for university teachers, calm and exact
+   IDEA the course's own four-column schema (Studenten | kan [verb] | omfang | kontekst) turned into a live sentence builder
+   PICTURE the outcome sentence set large, each of the four parts on its own coloured strip, plus a SOLO staircase showing the chosen level
+   COLOUR Nord teal #00B0B9 and deep #003d4c from the course pages, white ground, amber accent for warnings
+   TYPE Schibsted Grotesk throughout, 800 for titles and the sentence
+   LAYOUT laptop: sentence band across the top, form left + checklist/alignment right; phone: title, sentence, form, checklist */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0c1a1f);--ink:light-dark(#0f2a33,#e6f1f3);--mut:light-dark(#4f6670,#9db3ba);--deep:light-dark(#003d4c,#0a3340);--teal:#00B0B9;--tl:light-dark(#e3f5f6,#123139);--line:light-dark(#d3e2e5,#24434c);--amb:light-dark(#9a5b00,#ffbf5c);--ambbg:light-dark(#fff4e0,#33260f);--ok:light-dark(#0b7a55,#5fd6a6);--bad:light-dark(#b3261e,#ff8a80);--card:light-dark(#f6fafb,#11252c)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 "Schibsted Grotesk",system-ui,sans-serif;overflow-x:clip}
+.band{padding:clamp(24px,4vw,52px) max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+header.band{background:var(--deep);color:#fff;padding-bottom:28px}
+h1{font-size:clamp(30px,4.4vw,46px);line-height:1.05;letter-spacing:-.02em;margin:0 0 8px;font-weight:800;text-wrap:balance}
+.lede{margin:0;max-width:64ch;color:#cfe7ea}
+h2{font-size:22px;line-height:1.15;margin:0 0 12px;font-weight:800;letter-spacing:-.01em}
+h3{font-size:16px;margin:0 0 6px}
+.stage{background:var(--deep);color:#fff;padding-top:0}
+.sent{display:grid;grid-template-columns:auto auto minmax(0,1.3fr) minmax(0,1.2fr);gap:6px;align-items:stretch}
+.part{border-radius:10px;padding:12px 14px 14px;background:rgba(255,255,255,.07);border-top:4px solid var(--c)}
+.part small{display:block;font-size:13px;color:#a9cfd4;margin-bottom:4px}
+.part b{display:block;font-size:clamp(20px,2.4vw,28px);line-height:1.15;font-weight:800;letter-spacing:-.01em;overflow-wrap:anywhere}
+.part b.empty{color:#7fa9b0;font-weight:500}
+.p1{--c:#7fd8de}.p2{--c:#00B0B9}.p3{--c:#ffc861}.p4{--c:#ff8fb1}
+.under{display:flex;flex-wrap:wrap;gap:12px 28px;align-items:end;justify-content:space-between;margin-top:18px}
+.stairs{display:flex;align-items:end;gap:4px;height:84px}
+.st{width:clamp(48px,7vw,74px);border-radius:6px 6px 0 0;background:rgba(255,255,255,.12);color:#cfe7ea;font-size:13px;line-height:1.1;padding:6px;display:flex;align-items:end;transition:background .2s}
+.st.on{background:var(--teal);color:#002a33;font-weight:600}
+.st.rec{box-shadow:inset 0 0 0 2px #ffc861}
+.legend{font-size:13px;color:#a9cfd4;max-width:34ch}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;box-shadow:inset 0 0 0 2px #ffc861;vertical-align:-1px;margin-right:4px}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;font-weight:600;min-height:44px;padding:0 18px;border-radius:999px;border:1.5px solid transparent;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.pri{background:var(--teal);color:#002a33}.pri:hover{background:#29c7cf}
+.pri:disabled{opacity:.45;cursor:not-allowed}
+.gho{background:transparent;color:inherit;border-color:currentColor}
+.gho:hover{background:color-mix(in srgb,currentColor 10%,transparent)}
+main .grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:clamp(20px,3vw,40px);align-items:start}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+.panel+.panel{margin-top:18px}
+.step{display:grid;grid-template-columns:32px minmax(0,1fr);gap:12px;padding:16px 0;border-top:1px solid var(--line)}
+.step:first-of-type{border-top:0;padding-top:0}
+.num{width:32px;height:32px;border-radius:50%;background:var(--deep);color:#fff;display:grid;place-items:center;font-weight:800;font-size:15px}
+:root[data-theme=dark] .num{background:var(--teal);color:#002a33}
+label{display:block;font-weight:600;margin-bottom:4px}
+.hint{font-size:14px;color:var(--mut);margin:2px 0 8px}
+input[type=text],textarea,select{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px}
+textarea{resize:vertical;min-height:64px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:12px}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.seg button{background:var(--bg);color:var(--ink);border-color:var(--line);font-weight:500}
+.seg button[aria-pressed=true]{background:var(--deep);color:#fff;border-color:var(--deep);font-weight:600}
+:root[data-theme=dark] .seg button[aria-pressed=true]{background:var(--teal);color:#002a33;border-color:var(--teal)}
+.solo{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:8px}
+.solo button{border-radius:12px;text-align:left;padding:10px 12px;height:auto;background:var(--bg);color:var(--ink);border-color:var(--line);font-weight:500}
+.solo button b{display:block;font-size:15px}
+.solo button span{display:block;font-size:13px;color:var(--mut)}
+.solo button[aria-pressed=true]{border-color:var(--teal);background:var(--tl);box-shadow:inset 0 0 0 1.5px var(--teal)}
+.solo button .tag{display:inline-block;margin-top:4px;font-size:13px;color:var(--amb);font-weight:600}
+.verbs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.verbs button{min-height:38px;padding:0 13px;font-weight:500;background:var(--bg);color:var(--ink);border-color:var(--line)}
+.verbs button[aria-pressed=true]{background:var(--teal);border-color:var(--teal);color:#002a33;font-weight:600}
+.starters{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.starters button{min-height:34px;padding:0 11px;font-size:14px;font-weight:500;background:transparent;color:var(--mut);border:1px dashed var(--line)}
+.warn{background:var(--ambbg);color:var(--amb);border-radius:10px;padding:10px 12px;font-size:14px;margin-top:8px}
+.warn:empty{display:none}
+.checks{list-style:none;margin:0;padding:0}
+.checks li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:15px}
+.checks li:last-child{border-bottom:0}
+.ic{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:800;color:#fff;background:var(--line)}
+.ok .ic{background:var(--ok)}.no .ic{background:var(--bad)}.may .ic{background:var(--amb)}
+.checks small{display:block;color:var(--mut);font-size:13px}
+.align dl{margin:0;display:grid;gap:10px}
+.align dt{font-weight:700;font-size:14px;color:var(--mut)}
+.align dd{margin:0}
+.list{counter-reset:n}
+.item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start;padding:14px 0;border-top:1px solid var(--line)}
+.item p{margin:0;font-size:17px;font-weight:500}
+.item .meta{font-size:13px;color:var(--mut);margin-top:4px}
+.item .act{display:flex;gap:6px}
+.item .act button{min-height:38px;padding:0 12px;font-size:14px}
+.empty-l{color:var(--mut);margin:0;padding:14px 0;border-top:1px solid var(--line)}
+.toast{font-size:14px;color:var(--ok);min-height:1.4em;margin-top:6px}
+.savebar{border-top:1px solid var(--line);padding-top:16px;display:grid;gap:10px}
+#why{margin:0;font-size:14px;color:var(--amb)}
+#why:empty{display:none}
+.foot{font-size:13px;color:var(--mut);padding-top:0}
+@media(max-width:860px){main .grid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:700px){.sent{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.p3,.p4{grid-column:1/-1}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="band">
+  <div class="wrap">
+    <h1>Læringsutbyttelager</h1>
+    <p class="lede">Bygg læringsutbyttebeskrivelser for én undervisningsøkt, ikke hele emnet. Velg studienivå og SOLO-nivå, plukk et handlingsverb, og se setningen ta form.</p>
+  </div>
+</header>
+
+<section class="band stage" aria-label="Læringsutbyttet slik det ser ut nå">
+  <div class="wrap">
+    <div class="sent" id="sent"></div>
+    <div class="under">
+      <div>
+        <div class="stairs" id="stairs" aria-hidden="true"></div>
+      </div>
+      <p class="legend" id="legend"></p>
+    </div>
+  </div>
+</section>
+
+<main class="band">
+  <div class="wrap grid">
+    <div>
+      <div class="panel">
+        <div class="step">
+          <div class="num">1</div>
+          <div>
+            <h2>Økta og studienivå</h2>
+            <label>Studienivå <span aria-hidden="true">*</span></label>
+            <div class="seg" id="lvl" role="group" aria-label="Studienivå"></div>
+            <div class="row" style="margin-top:12px">
+              <div><label for="emne">Emne</label><input type="text" id="emne" placeholder="For eksempel SYK1001"></div>
+              <div><label for="okt">Økt eller tema</label><input type="text" id="okt" placeholder="For eksempel Akutt forverring"></div>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">2</div>
+          <div>
+            <h2>SOLO-nivå</h2>
+            <p class="hint">Hvor kompleks skal studentens handling være etter denne økta? Gult merke viser vanlige nivåer for studienivået du har valgt.</p>
+            <div class="solo" id="solo" role="group" aria-label="SOLO-nivå"></div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">3</div>
+          <div>
+            <h2>Handlingsverb</h2>
+            <p class="hint">Verb fra verbbanken for valgt nivå. Du kan også skrive ditt eget.</p>
+            <div class="verbs" id="verbs" role="group" aria-label="Verb"></div>
+            <label for="verb">Verb</label>
+            <input type="text" id="verb" autocomplete="off">
+            <div class="warn" id="verbwarn" role="status"></div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">4</div>
+          <div>
+            <h2>Hva og omfang</h2>
+            <p class="hint">Hva skal studenten gjøre noe med? Hold det til det økta faktisk rekker.</p>
+            <label for="hva">Innhold</label>
+            <textarea id="hva" rows="2" placeholder="pasientens symptomer og vitale tegn"></textarea>
+            <div class="warn" id="hvawarn" role="status"></div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">5</div>
+          <div>
+            <h2>Kontekst</h2>
+            <p class="hint">I hvilken situasjon, med hvilket formål eller ut fra hva?</p>
+            <label for="kon">Kontekst</label>
+            <textarea id="kon" rows="2" placeholder="for å identifisere tegn på forverring"></textarea>
+            <div class="starters" id="starters"></div>
+          </div>
+        </div>
+        <div class="savebar">
+          <p id="why" role="status"></p>
+          <div class="btns">
+            <button class="pri" id="add" type="button">Lagre i økta</button>
+            <button class="gho" id="reset" type="button">Tøm skjema</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Læringsutbytter for økta</h2>
+        <div class="list" id="list"></div>
+        <div class="btns" style="margin-top:14px">
+          <button class="pri" id="copy" type="button">Kopier alle</button>
+          <button class="gho" id="clear" type="button">Slett alle</button>
+        </div>
+        <div class="toast" id="toast" role="status"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel">
+        <h2>Sjekkliste</h2>
+        <ul class="checks" id="checks"></ul>
+      </div>
+      <div class="panel">
+        <h2>Verb som stoppes</h2>
+        <p class="hint">Disse kan ikke lagres, verken som verb eller inne i teksten.</p>
+        <dl style="margin:0;display:grid;gap:10px;font-size:15px">
+          <div><dt style="font-weight:700">Tvetydige verb</dt><dd style="margin:0;color:var(--mut)">forstå, begripe, fatte, oppfatte, mestre, beherske, ha grep om</dd></div>
+          <div><dt style="font-weight:700">Tilstandsverb</dt><dd style="margin:0;color:var(--mut)">vite, kjenne til, ha kunnskap om, være klar over, ha innsikt i, være kjent med, være bevisst, ha oversikt over</dd></div>
+          <div><dt style="font-weight:700">Prosessverb</dt><dd style="margin:0;color:var(--mut)">lære, se, bli kjent med, få innsikt i, tilegne seg, utvikle forståelse, oppleve, erfare, delta i, bli introdusert for, arbeide med</dd></div>
+        </dl>
+      </div>
+      <div class="panel align">
+        <h2>Meningsskapende samsvar</h2>
+        <dl id="align"></dl>
+      </div>
+    </div>
+  </div>
+</main>
+<p class="band foot wrap">Verbbank etter Claus Brabrand og SOLO-taksonomien (Biggs og Collis). Grunnstruktur etter Cedefop (2017). Skjemaet huskes i denne nettleseren, ikke hos andre.</p>
+
+<script>
+{
+const LV=[
+ {id:'bachelor',n:'Bachelor',rec:['uni','multi','rel'],t:'Bachelor bruker oftest uni-, multi- og relasjonelt nivå. Tidlig i løpet passer lavere nivå.'},
+ {id:'master',n:'Master',rec:['rel','ext'],t:'Master sikter normalt mot relasjonelt nivå og utvidet abstraksjon.'},
+ {id:'phd',n:'Ph.d.',rec:['ext'],t:'Ph.d. sikter mot utvidet abstraksjon: å generalisere, teoretisere og bidra med ny kunnskap.'}];
+const SO=[
+ {id:'uni',n:'Uni-strukturelt',s:'Én idé',v:['nevne','beregne','definere','identifisere','måle','gjengi','registrere','skissere','angi','etablere','samle inn'],
+  a:'Korte øvinger, begrepskort, quiz underveis, demonstrasjon og etterlikning.',e:'Flervalg, kortsvar, faktabaserte tester, muntlig utspørring.'},
+ {id:'multi',n:'Multi-strukturelt',s:'Mange løse idéer',v:['beskrive','bygge','formulere','kombinere','løse','utføre','anvende','oppsummere','gjøre rede for','karakterisere'],
+  a:'Regneøvinger, prosedyretrening, ferdighetsstasjoner, oppsummering i par.',e:'Beregningsoppgaver, prosedyrebaserte oppgaver, beskrivende oppgaver, demonstrasjon.'},
+ {id:'rel',n:'Relasjonelt',s:'Ser helheten',v:['analysere','begrunne','forklare','sammenligne','sammenfatte','tilpasse','utlede','planlegge','strukturere','eksemplifisere'],
+  a:'Case i grupper, sammenligningstabeller, begrepskart, «hvorfor»-diskusjoner.',e:'Case-analyse, sammenlignende essay, begrunnede valg, muntlig med «hvorfor»-spørsmål.'},
+ {id:'ext',n:'Utvidet abstraksjon',s:'Overfører til nytt',v:['bedømme','diskutere','evaluere','kritisere','perspektivere','vurdere','reflektere','generalisere','teoretisere','avgrense','estimere','fortolke','forutsi'],
+  a:'Problembasert arbeid med nye situasjoner, debatt, fagfellevurdering, utviklingsoppgaver.',e:'Kritisk refleksjonsnotat, utviklingsprosjekt, evaluering med anbefalinger, drøftingsoppgave.'}];
+const KIND={t:'et tvetydig verb: det kan bety svært ulike ting',s:'et tilstandsverb: det beskriver en tilstand, ikke noe studenten gjør',p:'et prosessverb: det beskriver læringsprosessen, ikke resultatet'};
+const VAGUE=[
+ ['t','forstå','forstå|forstår|forstått|forståelse|forståelsen'],['t','begripe','begripe|begriper|begrep om'],['t','fatte','fatte|fatter'],['t','oppfatte','oppfatte|oppfatter'],['t','mestre','mestre|mestrer|mestring'],['t','beherske','beherske|behersker'],['t','ha grep om','grep om'],
+ ['s','vite','vite|vet'],['s','kjenne til','kjenne til|kjenner til|kjennskap'],['s','ha kunnskap om','kunnskap om|kunnskaper om'],['s','være klar over','klar over'],['s','ha innsikt i','innsikt i|innsikt om'],['s','være kjent med','kjent med'],['s','være bevisst','bevisst på|bevisst om|bevissthet om|bevisst'],['s','ha oversikt over','oversikt over'],['s','ha forståelse for','forståelse for'],
+ ['p','lære','lære|lærer om|lærer å'],['p','se','se'],['p','bli kjent med','bli kjent med'],['p','få innsikt i','få innsikt'],['p','tilegne seg','tilegne seg|tilegner seg'],['p','utvikle forståelse','utvikle forståelse|utvikler forståelse'],['p','oppleve','oppleve|opplever'],['p','erfare','erfare|erfarer'],['p','få erfaring med','få erfaring|få øvelse'],['p','delta i','delta i|deltar i'],['p','bli introdusert for','introdusert for|introduseres for'],['p','arbeide med','arbeide med|jobbe med']
+].map(([k,w,src])=>({k,w,re:new RegExp('(?<![a-zæøå])('+src+')(?![a-zæøå])','i')}));
+const BROAD=/\b(hele|alle|alt|samtlige|generelt|ethvert|enhver)\b/i;
+const STARTERS=['for å ','slik at ','ut fra ','i lys av ','ved bruk av ','i møte med ','med utgangspunkt i '];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let st={lvl:'bachelor',solo:'rel',verb:'analysere',emne:'SYK1001 Klinisk observasjon',okt:'Akutt forverring',hva:'pasientens symptomer og vitale tegn',kon:'for å identifisere tegn på forverring',list:[{lvl:'bachelor',solo:'multi',verb:'måle og registrere',emne:'SYK1001 Klinisk observasjon',okt:'Akutt forverring',hva:'respirasjonsfrekvens, puls, blodtrykk og bevissthet',kon:'ved bruk av NEWS2 i simulert pasientsituasjon'}]};
+let edit=-1;
+try{const d=JSON.parse(localStorage.getItem('lub')||'null');if(d&&d.list)st=d}catch(e){}
+const save=()=>{try{localStorage.setItem('lub',JSON.stringify(st))}catch(e){}};
+const solo=()=>SO.find(x=>x.id===st.solo);
+const lvl=()=>LV.find(x=>x.id===st.lvl);
+const clean=s=>s.trim().replace(/[.\s]+$/,'');
+const sentence=o=>`Studenten kan ${clean(o.verb)} ${clean(o.hva)}${o.kon.trim()?' '+clean(o.kon):''}.`;
+function vagueIn(txt,kinds='tsp'){const f=VAGUE.find(v=>kinds.includes(v.k)&&v.re.test(txt));return f?{w:f.w,hit:txt.match(f.re)[1],why:KIND[f.k]}:null}
+const scanVerb=()=>vagueIn(st.verb);
+const scanText=()=>vagueIn(st.hva)||vagueIn(st.kon,'ts');
+const blocked=()=>!!(scanVerb()||scanText());
+const swaps=()=>solo().v.slice(0,5).map(v=>`<button type="button" data-v="${esc(v)}">${esc(v)}</button>`).join('');
+function verbSolo(v){const w=v.toLowerCase().trim();const f=SO.find(s=>s.v.some(x=>w===x||w.startsWith(x+' ')||w.endsWith(' '+x)));return f?f.id:null}
+
+function renderControls(){
+  $('lvl').innerHTML=LV.map(l=>`<button type="button" data-l="${l.id}" aria-pressed="${l.id===st.lvl}">${l.n}</button>`).join('');
+  const rec=lvl().rec;
+  $('solo').innerHTML=SO.map(s=>`<button type="button" data-s="${s.id}" aria-pressed="${s.id===st.solo}"><b>${s.n}</b><span>${s.s}</span>${rec.includes(s.id)?'<span class="tag">Vanlig på '+lvl().n.toLowerCase()+'</span>':''}</button>`).join('');
+  $('verbs').innerHTML=solo().v.map(v=>`<button type="button" data-v="${esc(v)}" aria-pressed="${v===st.verb.trim().toLowerCase()}">${esc(v)}</button>`).join('');
+  $('starters').innerHTML=STARTERS.map(s=>`<button type="button" data-k="${esc(s)}">${esc(s.trim())} …</button>`).join('');
+  for(const k of ['emne','okt','verb','hva','kon'])if(document.activeElement!==$(k))$(k).value=st[k];
+}
+function renderStage(){
+  const p=(c,l,v,ph)=>`<div class="part ${c}"><small>${l}</small><b class="${v?'':'empty'}">${v?esc(v):ph}</b></div>`;
+  $('sent').innerHTML=p('p1','Henvender seg til','Studenten','')+p('p2','Handlingsverb','kan '+(st.verb.trim()||'…'),'')+p('p3','Mål og omfang',clean(st.hva),'hva …')+p('p4','Kontekst',clean(st.kon),'i hvilken kontekst …');
+  const rec=lvl().rec,idx=SO.findIndex(s=>s.id===st.solo);
+  $('stairs').innerHTML=SO.map((s,i)=>`<div class="st ${i<=idx?'on':''} ${rec.includes(s.id)?'rec':''}" style="height:${30+i*18}px">${s.n.split('-')[0].split(' ')[0]}</div>`).join('');
+  $('legend').innerHTML=`<i></i>${esc(lvl().t)}`;
+  $('add').textContent=edit>=0?'Oppdater':'Lagre i økta';
+  $('add').disabled=!(st.verb.trim()&&st.hva.trim())||blocked();
+}
+function checks(){
+  const v=st.verb.trim(),h=st.hva.trim(),k=st.kon.trim(),all=v+' '+h+' '+k;
+  const vg=scanVerb(),vgAll=scanText(),vs=v?verbSolo(v):null,rec=lvl().rec;
+  const words=(h+' '+k).split(/\s+/).filter(Boolean).length;
+  const out=[];
+  out.push(!v?['no','Begynner med et handlingsverb','Velg eller skriv et verb.']:vg?['no','Begynner med et handlingsverb',`«${vg.hit}» er ${vg.why}. Velg et verb studenten kan vise i handling.`]:vs?['ok','Begynner med et handlingsverb',`«${v}» står i verbbanken.`]:['may','Begynner med et handlingsverb','Eget verb. Sjekk at det beskriver en observerbar handling.']);
+  out.push(!vs?['may','Verbet passer valgt SOLO-nivå','Fant ikke verbet i verbbanken, så nivået kan ikke sjekkes.']:vs===st.solo?['ok','Verbet passer valgt SOLO-nivå',`Hører til ${solo().n.toLowerCase()}.`]:['may','Verbet passer valgt SOLO-nivå',`Verbet hører vanligvis til ${SO.find(s=>s.id===vs).n.toLowerCase()}, ikke ${solo().n.toLowerCase()}.`]);
+  out.push(rec.includes(st.solo)?['ok','Nivået passer studienivået',`${solo().n} er vanlig på ${lvl().n.toLowerCase()}.`]:['may','Nivået passer studienivået',`${solo().n} er uvanlig på ${lvl().n.toLowerCase()}. Det kan være riktig, men vurder det bevisst.`]);
+  out.push(!h?['no','Angir mål og omfang','Skriv hva studenten skal arbeide med.']:BROAD.test(h)?['may','Angir mål og omfang','Ord som «alle» eller «hele» tyder på at beskrivelsen er for vid for én økt.']:words>40?['may','Angir mål og omfang','Lang beskrivelse. Kan den deles i to, eller fokuseres?']:['ok','Angir mål og omfang','Avgrenset innhold.']);
+  out.push(!k?['no','Gir kontekst for læringen','Legg til for eksempel «for å», «ut fra» eller «ved bruk av».']:['ok','Gir kontekst for læringen','Situasjon eller formål er angitt.']);
+  out.push(vgAll?['no','Tydelig, uten tvetydig språk',`«${vgAll.hit}» i teksten er ${vgAll.why}.`]:/\bog\b.*\bog\b/.test(v)?['may','Tydelig, uten tvetydig språk','Flere verb i én beskrivelse gjør den vanskeligere å vurdere.']:h?['ok','Tydelig, uten tvetydig språk','Ingen vage formuleringer funnet.']:['may','Tydelig, uten tvetydig språk','Fyll ut innholdet først.']);
+  const n=st.list.length+(edit<0&&v&&h?1:0);
+  out.push(n>4?['may','Realistisk for én økt',`${n} læringsutbytter er mye for én økt. Ofte holder 1–3.`]:['ok','Realistisk for én økt',`${n||'Ingen'} læringsutbytte${n===1?'':'r'} så langt.`]);
+  out.push(['may','Relaterer seg til emnets læringsutbytte',st.emne.trim()?`Sjekk mot emneplanen for ${st.emne.trim()}.`:'Sjekk mot emneplanen. Dette kan ikke verktøyet vurdere.']);
+  $('checks').innerHTML=out.map(([c,t,s])=>`<li class="${c}"><span class="ic" aria-hidden="true">${c==='ok'?'✓':c==='no'?'!':'?'}</span><span>${esc(t)}<small>${esc(s)}</small></span></li>`).join('');
+  $('verbwarn').innerHTML=vg?`«${esc(vg.hit)}» er ${esc(vg.why)}. Bytt til et handlingsverb på ${esc(solo().n.toLowerCase())} nivå:<div class="verbs" style="margin:8px 0 0">${swaps()}</div>`:'';
+  $('hvawarn').innerHTML=vgAll?`«${esc(vgAll.hit)}» er ${esc(vgAll.why)}. Skriv heller hva studenten skal <b>gjøre</b>, og la verbet i steg 3 bære handlingen.`:BROAD.test(h)?'Er dette for omfattende for én økt? Vurder å avgrense.':'';
+  $('why').textContent=blocked()?'Kan ikke lagres før tvetydige verb, tilstandsverb og prosessverb er byttet ut.':'';
+  const s=solo(),vv=v||'verbet';
+  $('align').innerHTML=`<div><dt>Læringsaktiviteter i økta</dt><dd>Studentene må selv <b>${esc(vv)}</b> i økta. Forslag: ${esc(s.a)}</dd></div><div><dt>Vurderingsform som måler verbet</dt><dd>${esc(s.e)}</dd></div><div><dt>Kontrollspørsmål</dt><dd>Hvis beskrivelsen sier «${esc(vv)}», men vurderingen bare tester gjenkjenning av fakta, er det ikke samsvar.</dd></div>`;
+}
+function renderList(){
+  $('list').innerHTML=st.list.length?st.list.map((o,i)=>`<div class="item"><div><p>${esc(sentence(o))}</p><div class="meta">${esc(LV.find(l=>l.id===o.lvl).n)} · ${esc(SO.find(s=>s.id===o.solo).n)}${o.okt?' · '+esc(o.okt):''}</div></div><div class="act"><button class="gho" type="button" data-e="${i}">Rediger</button><button class="gho" type="button" data-d="${i}" aria-label="Slett">Slett</button></div></div>`).join(''):'<p class="empty-l">Ingen lagret ennå. Bygg et læringsutbytte over og trykk «Lagre i økta».</p>';
+}
+function all(){renderControls();renderStage();checks();renderList();save()}
+
+$('lvl').addEventListener('click',e=>{const b=e.target.closest('[data-l]');if(b){st.lvl=b.dataset.l;all()}});
+$('solo').addEventListener('click',e=>{const b=e.target.closest('[data-s]');if(b){st.solo=b.dataset.s;if(verbSolo(st.verb)!==st.solo)st.verb=solo().v[0];all()}});
+for(const id of ['verbs','verbwarn'])$(id).addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(b){st.verb=b.dataset.v;all()}});
+$('starters').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(b){const k=b.dataset.k;st.kon=st.kon.trim()?st.kon:k;$('kon').value=st.kon;$('kon').focus();all()}});
+for(const k of ['emne','okt','verb','hva','kon'])$(k).addEventListener('input',e=>{st[k]=e.target.value;checks();renderStage();if(k==='verb')renderControls();save()});
+$('add').addEventListener('click',()=>{
+  if(blocked())return;
+  const o={lvl:st.lvl,solo:st.solo,verb:st.verb,emne:st.emne,okt:st.okt,hva:st.hva,kon:st.kon};
+  if(edit>=0)st.list[edit]=o;else st.list.push(o);
+  edit=-1;st.verb='';st.hva='';st.kon='';all();$('toast').textContent='Lagret.';$('verb').focus();
+});
+$('reset').addEventListener('click',()=>{edit=-1;for(const k of ['emne','okt','verb','hva','kon']){st[k]='';$(k).value=''}all();$('toast').textContent='';$('emne').focus()});
+$('list').addEventListener('click',e=>{
+  const ed=e.target.closest('[data-e]'),de=e.target.closest('[data-d]');
+  if(ed){edit=+ed.dataset.e;Object.assign(st,st.list[edit]);all();window.scrollTo({top:0,behavior:'smooth'})}
+  if(de){const i=+de.dataset.d;const gone=st.list.splice(i,1)[0];if(edit===i)edit=-1;all();$('toast').innerHTML='Slettet. <button class="gho" type="button" id="undo" style="min-height:34px;padding:0 12px">Angre</button>';$('undo').onclick=()=>{st.list.splice(i,0,gone);all();$('toast').textContent='Gjenopprettet.'}}
+});
+$('clear').addEventListener('click',()=>{if(!st.list.length)return;const old=st.list;st.list=[];edit=-1;all();$('toast').innerHTML='Alle slettet. <button class="gho" type="button" id="undo" style="min-height:34px;padding:0 12px">Angre</button>';$('undo').onclick=()=>{st.list=old;all();$('toast').textContent='Gjenopprettet.'}});
+$('copy').addEventListener('click',async()=>{
+  if(!st.list.length){$('toast').textContent='Ingenting å kopiere ennå.';return}
+  const head=[st.emne,st.okt].filter(x=>x.trim()).join(' – ');
+  const txt=(head?head+'\n':'')+'Etter økta kan studenten:\n'+st.list.map((o,i)=>`${i+1}. ${sentence(o)} (${LV.find(l=>l.id===o.lvl).n}, ${SO.find(s=>s.id===o.solo).n.toLowerCase()})`).join('\n');
+  try{await navigator.clipboard.writeText(txt);$('toast').textContent='Kopiert til utklippstavlen.'}
+  catch(e){$('toast').innerHTML='Kunne ikke kopiere automatisk. Merk teksten og kopier selv:<textarea readonly style="margin-top:6px" rows="5">'+esc(txt)+'</textarea>'}
+});
+all();
+}
+</script>
+</body>
+</html>
