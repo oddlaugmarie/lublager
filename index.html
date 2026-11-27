@@ -294,8 +294,8 @@ function checks(){
   $('verbwarn').innerHTML=vg?`«${esc(vg.hit)}» er ${esc(vg.why)}. Bytt til et handlingsverb på ${esc(solo().n.toLowerCase())} nivå:<div class="verbs" style="margin:8px 0 0">${swaps()}</div>`:'';
   $('hvawarn').innerHTML=vgAll?`«${esc(vgAll.hit)}» er ${esc(vgAll.why)}. Skriv heller hva studenten skal <b>gjøre</b>, og la verbet i steg 3 bære handlingen.`:BROAD.test(h)?'Er dette for omfattende for én økt? Vurder å avgrense.':'';
   $('why').textContent=blocked()?'Kan ikke lagres før tvetydige verb, tilstandsverb og prosessverb er byttet ut.':'';
-  const s=solo(),vv=v||'verbet';
-  $('align').innerHTML=`<div><dt>Læringsaktiviteter i økta</dt><dd>Studentene må selv <b>${esc(vv)}</b> i økta. Forslag: ${esc(s.a)}</dd></div><div><dt>Vurderingsform som måler verbet</dt><dd>${esc(s.e)}</dd></div><div><dt>Kontrollspørsmål</dt><dd>Hvis beskrivelsen sier «${esc(vv)}», men vurderingen bare tester gjenkjenning av fakta, er det ikke samsvar.</dd></div>`;
+  const s=solo(),vv=v||'verbet',does=v?`gjøre det verbet beskriver (<b>${esc(v)}</b>)`:'gjøre det verbet beskriver';
+  $('align').innerHTML=`<div><dt>Læringsaktiviteter i økta</dt><dd>Studentene må selv ${does} i økta. Forslag: ${esc(s.a)}</dd></div><div><dt>Vurderingsform som måler verbet</dt><dd>${esc(s.e)}</dd></div><div><dt>Kontrollspørsmål</dt><dd>Hvis beskrivelsen sier «${esc(vv)}», men vurderingen bare tester gjenkjenning av fakta, er det ikke samsvar.</dd></div>`;
 }
 function renderList(){
   $('list').innerHTML=st.list.length?st.list.map((o,i)=>`<div class="item"><div><p>${esc(sentence(o))}</p><div class="meta">${esc(LV.find(l=>l.id===o.lvl).n)} · ${esc(SO.find(s=>s.id===o.solo).n)}${o.okt?' · '+esc(o.okt):''}</div></div><div class="act"><button class="gho" type="button" data-e="${i}">Rediger</button><button class="gho" type="button" data-d="${i}" aria-label="Slett">Slett</button></div></div>`).join(''):'<p class="empty-l">Ingen lagret ennå. Bygg et læringsutbytte over og trykk «Lagre i økta».</p>';
